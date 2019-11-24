@@ -1,0 +1,7 @@
+{
+  "group": "infraxys",
+  "name": "python",
+  "git_url": "git@github.com:jeroenmanders/infraxys-python.git",
+  "dependencies": [
+  ]
+}
