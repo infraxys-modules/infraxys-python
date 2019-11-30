@@ -6,7 +6,8 @@ from infraxys.json.packets import Packets
 
 class BaseObject(object):
 
-    def __init__(self, db_id=None, container_db_id=None, environment_db_id=None, parent_instance_id=None, audit_json={}):
+    def __init__(self, db_id=None, container_db_id=None, environment_db_id=None, parent_instance_id=None, audit_json={},
+                 packet_type=None):
         self.audit_json = audit_json
         self.db_id = db_id
         self.container_db_id = container_db_id
@@ -14,11 +15,12 @@ class BaseObject(object):
         self.parent_instance_id = parent_instance_id
         self._packet = None
         self.audit_json = audit_json
+        self.packet_type = packet_type
         self.logger = Logger.get_logger(self.__class__.__name__)
 
-        if not 'packet_guid' in self.__class__.__dict__:
+        if not self.packet_type and not 'packet_guid' in self.__class__.__dict__:
             self.logger.error(
-                "Static variable 'packet_guid' should be defined in classes that inherit JsonInstance.")
+                "Static variable 'packet_guid' should be defined or constructor argument 'packet_type' should be passed in classes that inherit BaseObject.")
             sys.exit(1)
 
     def set_status(self, message):
@@ -36,7 +38,10 @@ class BaseObject(object):
 
     def get_packet(self):
         if not self._packet:
-            self._packet = Packets.get_instance().get_packet(self.packet_guid)
+            if self.packet_type:
+                self._packet = Packets.get_instance().get_packet(packet_type=self.packet_type)
+            else:
+                self._packet = Packets.get_instance().get_packet(guid=self.packet_guid)
 
         return self._packet
 

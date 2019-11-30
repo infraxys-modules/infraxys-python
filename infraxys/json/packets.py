@@ -20,6 +20,7 @@ class Packets(object):
     def __init__(self):
         self.logger = Logger.get_logger(self.__class__.__name__)
         self.packets = {}
+        self.packets_by_type = {}
 
     def _load(self):
         json_file="{}/environment.auto/packets.json".format(os.environ["ENVIRONMENT_DIR"])
@@ -28,8 +29,14 @@ class Packets(object):
             json_string = file.read()
         json.loads(json_string, object_hook=Packets.decode_packets)
 
-    def get_packet(self, guid):
-        return self.packets[guid]
+    def get_packet(self, guid=None, packet_type=None):
+        if guid:
+            return self.packets[guid]
+        elif packet_type:
+            return self.packets_by_type[packet_type]
+        else:
+            self.logger.error("guid or packet_type should be past to packets.get_packet().")
+            sys.exit(1)
 
     def decode_packets(dct):
         if "guid" in dct:
@@ -37,5 +44,7 @@ class Packets(object):
                             packetType=dct["packetType"], attributes_json=dct["attributes"])
 
             Packets.get_instance().packets[packet.guid] = packet
+            if "packetType" in dct:
+                Packets.get_instance().packets_by_type[packet.packetType] = packet
 
         return dct
