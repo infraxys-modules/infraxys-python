@@ -1,4 +1,4 @@
-import os, sys
+import json, os, requests, sys
 from infraxys.communicator import Communicator
 from infraxys.exceptions import BaseException
 from infraxys.logger import Logger
@@ -47,9 +47,10 @@ class JsonInstance(BaseObject):
 
         return json
 
-    def __init__(self, db_id=None, container_db_id=None, environment_db_id=None, parent_instance_id=None, audit_json={}):
+    def __init__(self, db_id=None, container_db_id=None, environment_db_id=None, parent_instance_id=None,
+                 packet_type=None, audit_json={}):
         super().__init__(db_id=db_id, container_db_id=container_db_id,environment_db_id=environment_db_id,
-                         parent_instance_id=parent_instance_id, audit_json=audit_json)
+                         parent_instance_id=parent_instance_id, audit_json=audit_json, packet_type=packet_type)
 
         self._json_window = None
 
@@ -66,4 +67,3 @@ class JsonInstance(BaseObject):
         form = self.form(self)
         form.add_button_click_listener("OK", self.create_new)
         self._get_json_window().set_form(form, auto_close=True)
-
