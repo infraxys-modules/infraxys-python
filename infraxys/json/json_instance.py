@@ -47,8 +47,8 @@ class JsonInstance(BaseObject):
 
         return json
 
-    def __init__(self, db_id=None, container_db_id=None, environment_db_id=None, parent_instance_id=None,
-                 packet_type=None, audit_json={}):
+    def __init__(self, db_id=None, container_db_id=None, environment_db_id=None, parent_instance_id=None, audit_json={},
+                 packet_type=None):
         super().__init__(db_id=db_id, container_db_id=container_db_id,environment_db_id=environment_db_id,
                          parent_instance_id=parent_instance_id, audit_json=audit_json, packet_type=packet_type)
 

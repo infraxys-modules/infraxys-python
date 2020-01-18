@@ -29,13 +29,13 @@ class Packets(object):
             json_string = file.read()
         json.loads(json_string, object_hook=Packets.decode_packets)
 
-    def get_packet(self, packet_guid=None, packet_type=None):
-        if packet_guid:
-            return self.packets[packet_guid]
+    def get_packet(self, guid=None, packet_type=None):
+        if guid:
+            return self.packets[guid]
         elif packet_type:
             return self.packets_by_type[packet_type]
         else:
-            self.logger.error("packet_guid or packet_type should be past to packets.get_packet().")
+            self.logger.error("guid or packet_type should be past to packets.get_packet().")
             sys.exit(1)
 
     def decode_packets(dct):

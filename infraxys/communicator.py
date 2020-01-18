@@ -90,7 +90,7 @@ class Communicator():
             for line in fileinput.input():
                 try:
                     line = line.rstrip()
-                    print("Processing ---- %s" % line, flush=True)
+                    # print("Processing ---- %s" % line, flush=True)
                     if processing_answer:
                         if line == "</FROM_SERVER>":
                             processing_answer = False

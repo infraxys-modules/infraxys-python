@@ -48,7 +48,7 @@ class BaseObject(object):
             if self.packet_type:
                 self._packet = Packets.get_instance().get_packet(packet_type=self.packet_type)
             else:
-                self._packet = Packets.get_instance().get_packet(packet_guid=self.packet_guid)
+                self._packet = Packets.get_instance().get_packet(guid=self.packet_guid)
 
         return self._packet
 
