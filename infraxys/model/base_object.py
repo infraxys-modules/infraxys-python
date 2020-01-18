@@ -7,12 +7,13 @@ from infraxys.json.packets import Packets
 class BaseObject(object):
 
     def __init__(self, db_id=None, container_db_id=None, environment_db_id=None, parent_instance_id=None, audit_json={},
-                 packet_type=None):
+                 packet_type=None, parent_instance_guid=None):
         self.audit_json = audit_json
         self.db_id = db_id
         self.container_db_id = container_db_id
         self.environment_db_id = environment_db_id
         self.parent_instance_id = parent_instance_id
+        self.parent_instance_guid = parent_instance_guid
         self._packet = None
         self.audit_json = audit_json
         self.packet_type = packet_type
@@ -22,6 +23,12 @@ class BaseObject(object):
             self.logger.error(
                 "Static variable 'packet_guid' should be defined or constructor argument 'packet_type' should be passed in classes that inherit BaseObject.")
             sys.exit(1)
+
+    def get_parent_instance_guid(self):
+        return self.parent_instance_guid
+
+    def set_parent_instance_guid(self, parent_instance_guid):
+        self.parent_instance_guid = parent_instance_guid
 
     def set_status(self, message):
         Communicator.set_status(message)
