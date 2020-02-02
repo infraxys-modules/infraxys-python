@@ -13,6 +13,10 @@ class JsonResource(object):
     def _get_json_window(self):
         if not self.json_window:
             self.json_window = JsonWindow.get_instance()
-            self.json_window.show(css_file="{}/shared/main.css".format(os.environ['MCKINSEY_CORE_MODULE_ROOT']))
+            css_file = os.getenv("JSON_WINDOW_CSS_FILE")
+            if css_file:
+                self.json_window.show(css_file="{}/{}".format(os.environ["MODULES_ROOT"], css_file))
+            else:
+                self.json_window.show()
 
         return self.json_window

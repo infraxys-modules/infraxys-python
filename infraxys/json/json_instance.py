@@ -57,7 +57,11 @@ class JsonInstance(BaseObject):
     def _get_json_window(self):
         if not self._json_window:
             self._json_window = JsonWindow.get_instance()
-            self._json_window.show(css_file="{}/shared/main.css".format(os.environ['MCKINSEY_CORE_MODULE_ROOT']))
+            css_file = os.getenv("JSON_WINDOW_CSS_FILE")
+            if css_file:
+                self._json_window.show(css_file="{}/{}".format(os.environ["MODULES_ROOT"], css_file))
+            else:
+                self._json_window.show()
 
         return self._json_window
 
