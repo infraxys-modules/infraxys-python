@@ -11,9 +11,10 @@ class RestClient(object):
     def __init__(self):
         self.endpoint = os.environ['INFRAXYS_REST_ENDPOINT']
 
-    def get_child_instance_by_attribute_value(self, parent_instance_guid, attribute_name,
+    def get_child_instance_by_attribute_value(self, container_guid, parent_instance_guid, attribute_name,
                                               attribute_value):
-        json_object = self.get_child_instances_by_attribute_value(parent_instance_guid=parent_instance_guid,
+        json_object = self.get_child_instances_by_attribute_value(container_guid=container_guid,
+                                                               parent_instance_guid=parent_instance_guid,
                                                                attribute_name=attribute_name,
                                                                attribute_value=attribute_value)
 
@@ -27,12 +28,12 @@ class RestClient(object):
 
         return json_object["instances"][0]
 
-    def get_child_instances_by_attribute_value(self, parent_instance_guid, attribute_name,
+    def get_child_instances_by_attribute_value(self, container_guid, parent_instance_guid, attribute_name,
                                                attribute_value):
 
-        assert attribute_name and attribute_value
+        assert attribute_name and attribute_value and container_guid and parent_instance_guid
 
-        request_path = f'instance/{parent_instance_guid}/byAttributeValue'
+        request_path = f'container/{container_guid}/instances/{parent_instance_guid}/byAttributeValue'
         url = "{}/{}".format(self.endpoint, request_path)
         json_body = {
             "attributeName": attribute_name,
@@ -40,6 +41,7 @@ class RestClient(object):
         }
         response = self.execute_request(request_method='GET', url=url, json_body=json_body)
         json_object = json.loads(response.content.decode('utf-8'))
+        print(json_object)
         return json_object
 
     def get_child_instances(self, parent_instance_guid, child_packet_guid=None, child_packet_key=None):
