@@ -1,7 +1,4 @@
 {
-  "group": "infraxys",
-  "name": "python",
-  "git_url": "https://github.com/infraxys-modules/infraxys-python.git",
   "dependencies": [
   ]
 }
