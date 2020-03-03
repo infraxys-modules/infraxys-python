@@ -60,9 +60,13 @@ class RestClient(object):
         response = self.execute_request(request_method='GET', url=url, json_body=json_body)
         return response
 
-    def ensure_instance(self, instance, parent_instance_guid):
+    def ensure_instance(self, instance, parent_instance_guid, parent_container_guid=None):
         assert isinstance(instance, json_instance.JsonInstance)
-        request_path = f'instance/{parent_instance_guid}/children/ensure'
+        if parent_container_guid:
+            request_path = f'instance/{parent_container_guid}/instances/{parent_instance_guid}/children/ensure'
+        else:
+            request_path = f'instance/{parent_instance_guid}/children/ensure'
+
         url = "{}/{}".format(self.endpoint, request_path)
         json_body = {
             "instances": [
