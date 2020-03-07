@@ -44,9 +44,9 @@ class RestClient(object):
         print(json_object)
         return json_object
 
-    def get_child_instances(self, parent_instance_guid, child_packet_guid=None, child_packet_key=None):
+    def get_child_instances(self, parent_instance_guid, child_packet_guid=None, child_packet_key=None, branch='master'):
         assert child_packet_guid or child_packet_key
-        request_path = f'instance/{parent_instance_guid}/children'
+        request_path = f'instance/{branch}/{parent_instance_guid}/children'
         url = "{}/{}".format(self.endpoint, request_path)
         if child_packet_guid:
             json_body = {
@@ -60,12 +60,12 @@ class RestClient(object):
         response = self.execute_request(request_method='GET', url=url, json_body=json_body)
         return response
 
-    def ensure_instance(self, instance, parent_instance_guid, parent_container_guid=None):
+    def ensure_instance(self, instance, parent_instance_guid, parent_container_guid=None, branch='master'):
         assert isinstance(instance, json_instance.JsonInstance)
         if parent_container_guid:
-            request_path = f'instance/{parent_container_guid}/instances/{parent_instance_guid}/children/ensure'
+            request_path = f'instance/{branch}/{parent_container_guid}/instances/{parent_instance_guid}/children/ensure'
         else:
-            request_path = f'instance/{parent_instance_guid}/children/ensure'
+            request_path = f'instance/{branch}/{parent_instance_guid}/children/ensure'
 
         url = "{}/{}".format(self.endpoint, request_path)
         json_body = {
