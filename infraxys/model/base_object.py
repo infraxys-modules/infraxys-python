@@ -35,7 +35,7 @@ class BaseObject(object):
 
     def from_environment(self):
         for attribute in self.get_attributes():
-            self.__setattr__(attribute.name, os.environ[attribute.name])
+            self.__setattr__(attribute.name, os.getenv(attribute.name, ""))
 
         self._loaded()
         return self

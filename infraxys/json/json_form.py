@@ -144,6 +144,9 @@ class JsonForm(object):
             real_id = field_name[0: len(field_name) - len(field_id_suffix)]
             into[real_id] = fields[field_name]
 
+    def set_data_part(self, element_id, json_data_part):
+        Communicator.get_instance().set_data_part(element_id=element_id, json_data_part=json_data_part)
+
     def set_status(self, message):
         Communicator.set_status(message)
 
@@ -162,5 +165,15 @@ class JsonForm(object):
             json.update({"value": value})
         else:
             json.update({"valueBase64": base64Value})
+
+        Communicator.get_instance().send_synchronous(json=json)
+
+    def set_object_enabled(self, object_id, value=True):
+        json = {
+            "requestType": "UI",
+            "subType": "SET ENABLED",
+            "objectId": object_id
+        }
+        json.update({"value": value})
 
         Communicator.get_instance().send_synchronous(json=json)

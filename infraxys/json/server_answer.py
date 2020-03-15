@@ -25,8 +25,10 @@ class ServerAnswerSchema(Schema):
     eventType = fields.String(attribute='event_type',
                               required=True)
     eventDetails = fields.String(attribute='event_details',
-                                 required=True,
+                                 required=False,
                                  error_messages={'required': 'eventDetails is required.'})
+    eventDetailsJson = fields.List(cls_or_instance=fields.Dict, attribute='event_details_json',
+                                   required=False)
     results = fields.Nested(ServerAnswersSchema, many=True)
     objectId = fields.String(attribute='object_id', required=False)
     tags = fields.Raw(required=False)
@@ -43,9 +45,10 @@ class ServerAnswerSchema(Schema):
 
 class ServerAnswer(object):
 
-    def __init__(self, event_type, event_details, results, object_id=None, tags=None):
+    def __init__(self, event_type, results, event_details=None, event_details_json=None, object_id=None, tags=None):
         self.event_type = event_type
         self.event_details = event_details
+        self.event_details_json = event_details_json
         self.results = results
         self.object_id = object_id
         self.tags = tags

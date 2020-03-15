@@ -1,8 +1,7 @@
 import json
 import os
-
 import requests
-
+from infraxys.logger import Logger
 from .json import json_instance
 
 
@@ -10,55 +9,59 @@ class RestClient(object):
 
     def __init__(self):
         self.endpoint = os.environ['INFRAXYS_REST_ENDPOINT']
+        self.logger = Logger.get_logger(self.__class__.__name__)
 
-    def get_child_instance_by_attribute_value(self, container_guid, parent_instance_guid, attribute_name,
-                                              attribute_value):
-        json_object = self.get_child_instances_by_attribute_value(container_guid=container_guid,
-                                                               parent_instance_guid=parent_instance_guid,
-                                                               attribute_name=attribute_name,
-                                                               attribute_value=attribute_value)
+    def get_child_instance(self, parent_instance_guid, container_guid, child_packet_guid=None,
+                            child_packet_type=None, child_packet_key=None, attribute_name = None,
+                            attribute_value = None, branch='master', json_body = {}):
 
-        if len(json_object['instances']) == 0:
+        json_object = self.get_child_instances(parent_instance_guid=parent_instance_guid, container_guid=container_guid,
+                                             child_packet_type=child_packet_type, child_packet_key=child_packet_key,
+                                             attribute_name=attribute_name, attribute_value=attribute_value,
+                                             branch=branch, json_body=json_body)
+
+        instances = json_object["instances"]
+        if len(instances) == 0:
             return None
-        elif len(json_object['instances']) > 1:
-            raise Exception(
-                "Expecting only 1 child instance, but found {} for attribute '{}' with value '{}' under instance guid '{}'.".format(
-                    len(json_object['instances']), attribute_name, attribute_value, parent_instance_guid)
-            )
+        elif len(instances) == 1:
+            return instances[0]
+        else:
+            raise Exception("Multiple instances returned while maximum 1 is expected.")
 
-        return json_object["instances"][0]
+    def get_child_instances(self, parent_instance_guid, container_guid, child_packet_guid=None,
+                            child_packet_type=None, child_packet_key=None, attribute_name = None,
+                            attribute_value = None, branch='master', json_body = {}):
+        if container_guid:
+            request_path = f'container/{container_guid}/instances/{parent_instance_guid}/children'
+        else:
+            request_path = f'instance/{branch}/{parent_instance_guid}/children'
 
-    def get_child_instances_by_attribute_value(self, container_guid, parent_instance_guid, attribute_name,
-                                               attribute_value):
+        if attribute_name and attribute_value:
+            json_body.update({
+                "attributeName": attribute_name,
+                "attributeValue": attribute_value
+            })
 
-        assert attribute_name and attribute_value and container_guid and parent_instance_guid
-
-        request_path = f'container/{container_guid}/instances/{parent_instance_guid}/byAttributeValue'
         url = "{}/{}".format(self.endpoint, request_path)
-        json_body = {
-            "attributeName": attribute_name,
-            "attributeValue": attribute_value
-        }
+
+        if child_packet_type:
+            json_body.update({
+                "packetType": child_packet_type
+            })
+
+        if child_packet_guid:
+            json_body.update({
+                "packetGuid": child_packet_guid
+            })
+
+        if child_packet_key:
+            json_body.update({
+                "packetKey": child_packet_key
+            })
+
         response = self.execute_request(request_method='GET', url=url, json_body=json_body)
         json_object = json.loads(response.content.decode('utf-8'))
-        print(json_object)
         return json_object
-
-    def get_child_instances(self, parent_instance_guid, child_packet_guid=None, child_packet_key=None, branch='master'):
-        assert child_packet_guid or child_packet_key
-        request_path = f'instance/{branch}/{parent_instance_guid}/children'
-        url = "{}/{}".format(self.endpoint, request_path)
-        if child_packet_guid:
-            json_body = {
-                "packetGuid": child_packet_guid
-            }
-        else:
-            json_body = {
-                "packetKey": child_packet_key
-            }
-
-        response = self.execute_request(request_method='GET', url=url, json_body=json_body)
-        return response
 
     def ensure_instance(self, instance, parent_instance_guid, parent_container_guid=None, branch='master'):
         assert isinstance(instance, json_instance.JsonInstance)
@@ -74,6 +77,13 @@ class RestClient(object):
                 ]
         }
         response = self.execute_request(request_method='POST', url=url, json_body=json_body)
+        json_object = json.loads(response.content.decode('utf-8'))
+
+        print(json_object)
+        if "status" in json_object and json_object["status"] == "FAILED":
+            message = 'Error creating instance: {}'.format(json_object["message"])
+            raise Exception(message)
+
         return response
 
     def execute_request(self, request_method, url, headers: object = {}, json_body=None):

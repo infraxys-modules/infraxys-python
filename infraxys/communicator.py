@@ -57,6 +57,16 @@ class Communicator():
         }
         self.send_synchronous(json, return_on_first_answer=True)
 
+    def set_data_part(self, element_id, json_data_part):
+        json = {
+            "requestType": "UI",
+            "subType": "UPDATE DATA PART",
+            "objectId": element_id,
+            "dataPart": json_data_part
+        }
+
+        self.send_synchronous(json=json)
+
     def set_status(message):
         Communicator.get_instance()._set_status(message=message)
 
@@ -75,7 +85,6 @@ class Communicator():
         print("</FEEDBACK>", flush=True)
 
     def send_synchronous(self, json, callback=None, return_on_first_answer=True):
-
         self._send_asynchronous(json=json)
         return self.wait_for_server(callback=callback, return_on_first_answer=return_on_first_answer)
 

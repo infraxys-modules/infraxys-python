@@ -60,9 +60,9 @@ class JsonWindow(object):
                 Communicator.get_instance().wait_for_server(callback=self.answer_received)
                 return
 
-            print("===", flush=True)
-            print(json_object, flush=True)
-            print("===", flush=True)
+            #print("===", flush=True)
+            #print(json_object, flush=True)
+            #print("===", flush=True)
             schema = ServerAnswerSchema()
             event_data = schema.load(json_object)
             if event_data.event_type == "FORM_LOADED":
