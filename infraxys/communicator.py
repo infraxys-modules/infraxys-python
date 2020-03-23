@@ -48,6 +48,23 @@ class Communicator():
     def show_message(message, type):
         Communicator.get_instance()._show_message(message=message, type=type)
 
+    @staticmethod
+    def show_dialog(message):
+        Communicator.get_instance()._show_message(message=message, type="BUTTON_DIALOG", title=None, isHtml=false,
+                                                  defaultValue=None, styleName=None, defaultButton=None, width=450,
+                                                  height=450, stringInputLabel=None)
+
+    def _show_dialog(self,message=message, type="BUTTON_DIALOG", title=None, isHtml=false,
+                     defaultValue=None, styleName=None, defaultButton=None, width=450,
+                     height=450, stringInputLabel=None):
+        json = {
+            "requestType": "UI",
+            "subType": "SHOW DIALOG",
+            "message": message,
+            "title": title
+        }
+        self.send_synchronous(json, return_on_first_answer=True)
+
     def _show_message(self, message, type):
         json = {
             "requestType": "UI",
