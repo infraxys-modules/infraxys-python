@@ -49,19 +49,23 @@ class Communicator():
         Communicator.get_instance()._show_message(message=message, type=type)
 
     @staticmethod
-    def show_dialog(message):
-        Communicator.get_instance()._show_message(message=message, type="BUTTON_DIALOG", title=None, isHtml=false,
-                                                  defaultValue=None, styleName=None, defaultButton=None, width=450,
-                                                  height=450, stringInputLabel=None)
+    def show_dialog(message, type="BUTTON_DIALOG", title=None, is_html=False,
+                    default_value=None, style_name=None, default_button=None, width=450,
+                    height=450, string_input_label=None):
+        Communicator.get_instance()._show_message(message=message, type=type, title=title, is_html=is_html,
+                                                  default_value=default_value, style_name=style_name,
+                                                  default_button=default_button, width=width, height=height,
+                                                  string_input_label=string_input_label)
 
-    def _show_dialog(self,message=message, type="BUTTON_DIALOG", title=None, isHtml=false,
-                     defaultValue=None, styleName=None, defaultButton=None, width=450,
-                     height=450, stringInputLabel=None):
+    def _show_dialog(self, message, type="BUTTON_DIALOG", title=None, is_html=False, default_value=None,
+                     style_name=None, default_button=None, width=450, height=450, string_input_label=None):
         json = {
             "requestType": "UI",
             "subType": "SHOW DIALOG",
             "message": message,
-            "title": title
+            "title": title,
+            "width": width,
+            "height": height
         }
         self.send_synchronous(json, return_on_first_answer=True)
 
