@@ -49,16 +49,16 @@ class Communicator():
         Communicator.get_instance()._show_message(message=message, type=type)
 
     @staticmethod
-    def show_dialog(message, type="BUTTON_DIALOG", title=None, is_html=False,
-                    default_value=None, style_name=None, default_button=None, width=450,
+    def show_dialog(message, type="BUTTON_DIALOG", title='', is_html=False,
+                    default_value='', style_name='', default_button='', width=450,
                     height=450, string_input_label=None):
-        Communicator.get_instance()._show_message(message=message, type=type, title=title, is_html=is_html,
+        Communicator.get_instance()._show_dialog(message=message, type=type, title=title, is_html=is_html,
                                                   default_value=default_value, style_name=style_name,
                                                   default_button=default_button, width=width, height=height,
                                                   string_input_label=string_input_label)
 
-    def _show_dialog(self, message, type="BUTTON_DIALOG", title=None, is_html=False, default_value=None,
-                     style_name=None, default_button=None, width=450, height=450, string_input_label=None):
+    def _show_dialog(self, message, type="BUTTON_DIALOG", title='', is_html=False, default_value='',
+                     style_name='', default_button='', width=450, height=450, string_input_label=''):
         json = {
             "requestType": "UI",
             "subType": "SHOW DIALOG",

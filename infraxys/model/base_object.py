@@ -125,6 +125,7 @@ class BaseObject(object):
         return answer
 
     def execute_action(self, filename, instance_id=None, label=None):
+        raise Exception("Use REST-API to execute actions.")
         if instance_id == None:
             if self.instance_id == None:
                 raise BaseException(
