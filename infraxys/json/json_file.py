@@ -14,11 +14,19 @@ class JsonFile(object):
     def get_attribute(self, attribute_name):
         return self.json_object[attribute_name]
 
-    def get_item(self, attribute_name, attribute_value, from_json_object = None):
+    def get_item(self, attribute_name, attribute_value, from_json_object = None, case_sensitive=True):
         json_object = from_json_object if from_json_object else self.json_object
+        search_value = attribute_value
+        if not case_sensitive:
+            search_value = search_value.upper()
+
         for item in json_object[self.items_attribute]:
-            if item[attribute_name] == attribute_value:
-                return item
+            if case_sensitive:
+                if item[attribute_name] == search_value:
+                    return item
+            else:
+                if item[attribute_name].upper() == search_value:
+                    return item
 
         return None
 

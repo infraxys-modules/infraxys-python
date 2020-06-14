@@ -1,11 +1,8 @@
-import json, os, requests, sys
-from infraxys.communicator import Communicator
-from infraxys.exceptions import BaseException
-from infraxys.logger import Logger
-from .json_window import JsonWindow
+import json
+import os
+
 from infraxys.model.base_object import BaseObject
-from pprint import pprint
-from .packets import Packets
+from .json_window import JsonWindow
 
 
 class JsonInstance(BaseObject):
@@ -43,13 +40,15 @@ class JsonInstance(BaseObject):
         json = {}
         for attribute in self.get_attributes():
             value = self.__getattribute__(attribute.name)
-            json.update({ attribute.name: value})
+            json.update({attribute.name: value})
 
         return json
 
-    def __init__(self, db_id=None, container_db_id=None, environment_db_id=None, parent_instance_id=None, audit_json={},
+    def __init__(self, rest_client=None, db_id=None, parent_instance_reference=None, container_db_id=None, environment_db_id=None,
+                 parent_instance_id=None, audit_json={},
                  packet_type=None):
-        super().__init__(db_id=db_id, container_db_id=container_db_id,environment_db_id=environment_db_id,
+        super().__init__(rest_client=rest_client, db_id=db_id, parent_instance_reference=parent_instance_reference,
+                         container_db_id=container_db_id, environment_db_id=environment_db_id,
                          parent_instance_id=parent_instance_id, audit_json=audit_json, packet_type=packet_type)
 
         self._json_window = None
@@ -71,3 +70,51 @@ class JsonInstance(BaseObject):
         form = self.form(self)
         form.add_button_click_listener("OK", self.create_new)
         self._get_json_window().set_form(form, auto_close=True)
+
+    def saveInstance(self):
+        if not self.parent_instance_reference:
+            raise Exception("parent_instance_reference is required for saveInstance.")
+
+        url = '{}/api/v1/instances/{}/{}/{}/{}/addInstance' \
+            .format(self.rest_client.endpoint,
+                    self.parent_instance_reference.module_branch_path,
+                    self.parent_instance_reference.environment_id,
+                    self.parent_instance_reference.container_id,
+                    self.parent_instance_reference.instance_id)
+        response = self.rest_client.execute_request(request_method='POST', url=url, json_body=self.to_json_fields())
+        print("----")
+        print("----")
+        print("----")
+        print(response.content)
+        print("----")
+        print("----")
+        json_object = json.loads(response.content.decode('utf-8'))
+
+        print(json_object)
+        if "status" in json_object and json_object["status"] == "FAILED":
+            message = 'Error creating instance: {}'.format(json_object["message"])
+            raise Exception(message)
+
+        return response
+
+    def save(self, instance, parent_instance_guid, parent_container_guid=None, branch='master'):
+        if parent_container_guid:
+            request_path = f'instance/{branch}/{parent_container_guid}/instances/{parent_instance_guid}/children/ensure'
+        else:
+            request_path = f'instance/{branch}/{parent_instance_guid}/children/ensure'
+
+        url = "{}/{}".format(self.endpoint, request_path)
+        json_body = {
+            "instances": [
+                instance.to_json_fields()
+            ]
+        }
+        response = self.execute_request(request_method='POST', url=url, json_body=json_body)
+        json_object = json.loads(response.content.decode('utf-8'))
+
+        print(json_object)
+        if "status" in json_object and json_object["status"] == "FAILED":
+            message = 'Error creating instance: {}'.format(json_object["message"])
+            raise Exception(message)
+
+        return response

@@ -6,10 +6,12 @@ from infraxys.json.packets import Packets
 
 class BaseObject(object):
 
-    def __init__(self, db_id=None, container_db_id=None, environment_db_id=None, parent_instance_id=None, audit_json={},
+    def __init__(self, rest_client=None, db_id=None, parent_instance_reference=None, container_db_id=None, environment_db_id=None, parent_instance_id=None, audit_json={},
                  packet_type=None, parent_instance_guid=None):
         self.audit_json = audit_json
+        self.rest_client = rest_client
         self.db_id = db_id
+        self.parent_instance_reference = parent_instance_reference
         self.container_db_id = container_db_id
         self.environment_db_id = environment_db_id
         self.parent_instance_id = parent_instance_id

@@ -62,6 +62,7 @@ class Communicator():
         json = {
             "requestType": "UI",
             "subType": "SHOW DIALOG",
+            "isHtml": is_html,
             "message": message,
             "title": title,
             "width": width,

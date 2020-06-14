@@ -1,24 +1,43 @@
 import json
-import os
+
 import requests
+
+from infraxys.json.json_utils import JsonUtils
 from infraxys.logger import Logger
+from .exceptions import BadRequestException, UnauthorizedException, NotFoundException
 from .json import json_instance
 
 
-class RestClient(object):
+class InfraxysRestClient(object):
+    logger = Logger.get_logger("InfraxysRestClient")
+    _instances = {}
 
-    def __init__(self):
-        self.endpoint = os.environ['INFRAXYS_REST_ENDPOINT']
+    @staticmethod
+    def get_instance(infraxys_config_variable):
+        if not infraxys_config_variable in InfraxysRestClient._instances:
+            filename = f"/tmp/infraxys/variables/INFRAXYS-CONFIG/{infraxys_config_variable}"
+            InfraxysRestClient.logger.info(f'Retrieving Infraxys token from {filename}')
+            jsonObject = JsonUtils.get_instance().load_from_file(filename=filename)
+            endpoint = jsonObject["endpoint"]
+            api_token = jsonObject["token"]
+            InfraxysRestClient._instances[infraxys_config_variable] = \
+                InfraxysRestClient(endpoint=endpoint, api_token=api_token)
+
+        return InfraxysRestClient._instances[infraxys_config_variable]
+
+    def __init__(self, endpoint, api_token):
+        self.endpoint = endpoint
+        self.api_token = api_token
         self.logger = Logger.get_logger(self.__class__.__name__)
 
     def get_child_instance(self, parent_instance_guid, container_guid, child_packet_guid=None,
-                            child_packet_type=None, child_packet_key=None, attribute_name = None,
-                            attribute_value = None, branch='master', json_body = {}):
+                           child_packet_type=None, child_packet_key=None, attribute_name=None,
+                           attribute_value=None, branch='master', json_body={}):
 
         json_object = self.get_child_instances(parent_instance_guid=parent_instance_guid, container_guid=container_guid,
-                                             child_packet_type=child_packet_type, child_packet_key=child_packet_key,
-                                             attribute_name=attribute_name, attribute_value=attribute_value,
-                                             branch=branch, json_body=json_body)
+                                               child_packet_type=child_packet_type, child_packet_key=child_packet_key,
+                                               attribute_name=attribute_name, attribute_value=attribute_value,
+                                               branch=branch, json_body=json_body)
 
         instances = json_object["instances"]
         if len(instances) == 0:
@@ -29,8 +48,8 @@ class RestClient(object):
             raise Exception("Multiple instances returned while maximum 1 is expected.")
 
     def get_child_instances(self, parent_instance_guid, container_guid, child_packet_guid=None,
-                            child_packet_type=None, child_packet_key=None, attribute_name = None,
-                            attribute_value = None, branch='master', json_body = {}):
+                            child_packet_type=None, child_packet_key=None, attribute_name=None,
+                            attribute_value=None, branch='master', json_body={}):
         if container_guid:
             request_path = f'container/{container_guid}/instances/{parent_instance_guid}/children'
         else:
@@ -42,7 +61,7 @@ class RestClient(object):
                 "attributeValue": attribute_value
             })
 
-        url = "{}/{}".format(self.endpoint, request_path)
+        url = "{}/api/v1/{}".format(self.endpoint, request_path)
 
         if child_packet_type:
             json_body.update({
@@ -70,11 +89,11 @@ class RestClient(object):
         else:
             request_path = f'instance/{branch}/{parent_instance_guid}/children/ensure'
 
-        url = "{}/{}".format(self.endpoint, request_path)
+        url = "{}/api/v1/{}".format(self.endpoint, request_path)
         json_body = {
             "instances": [
-            instance.to_json_fields()
-                ]
+                instance.to_json_fields()
+            ]
         }
         response = self.execute_request(request_method='POST', url=url, json_body=json_body)
         json_object = json.loads(response.content.decode('utf-8'))
@@ -87,13 +106,29 @@ class RestClient(object):
         return response
 
     def execute_request(self, request_method, url, headers: object = {}, json_body=None):
-        # bearer = ''; # get from a Variable or from an external Vault, ... Not needed for Infraxys developer
-        # headers.update({'Authorization': 'Bearer {}'.format(bearer)
-        #                })
+        headers.update({'Authorization': 'token {}'.format(self.api_token)
+                        })
         headers.update({'Content-Type': 'application/json'})
 
         print("Executing {} to REST endpoint: {}".format(request_method, url))
         response = requests.request(request_method, url, headers=headers, verify=False, json=json_body)
 
-        print("Status code: {}".format(response.status_code))
+        if response.status_code == 200:
+            pass
+        elif response.status_code == 204:
+            self.logger.info("Successful deletion.")
+        elif response.status_code == 400:
+            raise BadRequestException()
+        elif response.status_code == 403:
+            raise UnauthorizedException()
+        elif response.status_code == 404:
+            raise NotFoundException()
+        else:
+            self.logger.warn("Status code: {}".format(response.status_code))
+            try:
+                if "token" not in response.content:
+                    self.logger.warn(response.content)
+            finally:
+                pass
+
         return response
