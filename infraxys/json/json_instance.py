@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 from infraxys.model.base_object import BaseObject
 from .json_window import JsonWindow
@@ -7,6 +8,7 @@ from .json_window import JsonWindow
 
 class JsonInstance(BaseObject):
 
+    '''
     def __str__(self):
         if hasattr(self, 'name'):
             return self.name
@@ -16,6 +18,7 @@ class JsonInstance(BaseObject):
                 return self.__getattribute__(attribute.name)
 
         return super().__str__()
+    '''
 
     def load_instance_form_response(self, server_response):
         form_fields = server_response.get_form_fields()
@@ -44,13 +47,8 @@ class JsonInstance(BaseObject):
 
         return json
 
-    def __init__(self, rest_client=None, db_id=None, parent_instance_reference=None, container_db_id=None, environment_db_id=None,
-                 parent_instance_id=None, audit_json={},
-                 packet_type=None):
-        super().__init__(rest_client=rest_client, db_id=db_id, parent_instance_reference=parent_instance_reference,
-                         container_db_id=container_db_id, environment_db_id=environment_db_id,
-                         parent_instance_id=parent_instance_id, audit_json=audit_json, packet_type=packet_type)
-
+    def __init__(self, instance_reference=None, parent_instance_reference=None):
+        super().__init__(instance_reference=instance_reference, parent_instance_reference=parent_instance_reference)
         self._json_window = None
 
     def _get_json_window(self):

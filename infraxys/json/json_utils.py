@@ -21,3 +21,12 @@ class JsonUtils(object):
             JsonUtils.instance = JsonUtils()
 
         return JsonUtils.instance
+
+    @staticmethod
+    def get_item_from_array(json_array, attribute_name, attribute_value):
+        for item in json_array:
+            if attribute_name in item:
+                if item[attribute_name] == attribute_value:
+                    return item
+
+        return None

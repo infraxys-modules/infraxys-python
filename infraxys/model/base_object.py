@@ -1,30 +1,19 @@
-import os, sys
-from infraxys.logger import Logger
+import os
+
 from infraxys.communicator import Communicator
-from infraxys.json.packets import Packets
+from infraxys.logger import Logger
 
 
 class BaseObject(object):
 
-    def __init__(self, rest_client=None, db_id=None, parent_instance_reference=None, container_db_id=None, environment_db_id=None, parent_instance_id=None, audit_json={},
-                 packet_type=None, parent_instance_guid=None):
-        self.audit_json = audit_json
-        self.rest_client = rest_client
-        self.db_id = db_id
+    def __init__(self, instance_reference=None, parent_instance_reference=None):
+        self.instance_reference = instance_reference
         self.parent_instance_reference = parent_instance_reference
-        self.container_db_id = container_db_id
-        self.environment_db_id = environment_db_id
-        self.parent_instance_id = parent_instance_id
-        self.parent_instance_guid = parent_instance_guid
         self._packet = None
-        self.audit_json = audit_json
-        self.packet_type = packet_type
         self.logger = Logger.get_logger(self.__class__.__name__)
 
-        if not self.packet_type and not 'packet_guid' in self.__class__.__dict__:
-            self.logger.error(
-                "Static variable 'packet_guid' should be defined or constructor argument 'packet_type' should be passed in classes that inherit BaseObject.")
-            sys.exit(1)
+    def get_packet(self):
+        return self._packet
 
     def get_parent_instance_guid(self):
         return self.parent_instance_guid
@@ -43,16 +32,7 @@ class BaseObject(object):
         return self
 
     def _loaded(self):
-        pass # override this method if you need to calculate variables after all values are set
-
-    def get_packet(self):
-        if not self._packet:
-            if self.packet_type:
-                self._packet = Packets.get_instance().get_packet(packet_type=self.packet_type)
-            else:
-                self._packet = Packets.get_instance().get_packet(guid=self.packet_guid)
-
-        return self._packet
+        pass  # override this method if you need to calculate variables after all values are set
 
     def get_attributes(self):
         return self.get_packet().get_attributes()
@@ -122,8 +102,9 @@ class BaseObject(object):
         else:
             json.update({"environmentId": self.environment_db_id})
 
-        answer = self._execute_action(label="Executing {} {} pipeline for {}".format(scope, pipeline_type, self.__str__()),
-                                      json=json)
+        answer = self._execute_action(
+            label="Executing {} {} pipeline for {}".format(scope, pipeline_type, self.__str__()),
+            json=json)
         return answer
 
     def execute_action(self, filename, instance_id=None, label=None):
