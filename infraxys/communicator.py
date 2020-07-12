@@ -106,6 +106,9 @@ class Communicator():
         print(json, flush=True)
         print("</FEEDBACK>", flush=True)
 
+    def send_asynchronous(self, json):
+        self._send_asynchronous(json=json)
+
     def send_synchronous(self, json, callback=None, return_on_first_answer=True):
         self._send_asynchronous(json=json)
         return self.wait_for_server(callback=callback, return_on_first_answer=return_on_first_answer)
