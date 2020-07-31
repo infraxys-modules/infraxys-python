@@ -33,11 +33,11 @@ class InfraxysRestClient(object):
         requests.packages.urllib3.disable_warnings()
 
     def get_child_instance(self, parent_instance_reference, child_packet_guid=None,
-                           child_packet_type=None, child_packet_key=None, attribute_name=None,
+                           child_packet_type=None, attribute_name=None,
                            attribute_value=None, branch='master', json_body={}):
 
         json_object = self.get_child_instances(parent_instance_guid=parent_instance_guid, container_guid=container_guid,
-                                               child_packet_type=child_packet_type, child_packet_key=child_packet_key,
+                                               child_packet_type=child_packet_type,
                                                attribute_name=attribute_name, attribute_value=attribute_value,
                                                branch=branch, json_body=json_body)
 
@@ -50,7 +50,7 @@ class InfraxysRestClient(object):
             raise Exception("Multiple instances returned while maximum 1 is expected.")
 
     def get_child_instances(self, parent_instance_guid, container_guid, child_packet_guid=None,
-                            child_packet_type=None, child_packet_key=None, attribute_name=None,
+                            child_packet_type=None, attribute_name=None,
                             attribute_value=None, branch='master', json_body={}):
         if container_guid:
             request_path = f'container/{container_guid}/instances/{parent_instance_guid}/children'
@@ -73,11 +73,6 @@ class InfraxysRestClient(object):
         if child_packet_guid:
             json_body.update({
                 "packetGuid": child_packet_guid
-            })
-
-        if child_packet_key:
-            json_body.update({
-                "packetKey": child_packet_key
             })
 
         response = self.execute_request(request_method='GET', url=url, json_body=json_body)

@@ -34,7 +34,7 @@ class InfraxysService(BaseService):
         })
         response = InfraxysRestClient.get_instance().execute_get(path='instances/byAttributeNameAndValue', json_body=json_body)
         json_response = json.loads(response.content.decode('utf-8'))
-        print(json_response)
+        #print(json_response)
         if 'instance' in json_response:
             instance_json = json_response['instance']
             result = self._get_instance_from_instance_json(instance_json, target_class)
@@ -55,7 +55,7 @@ class InfraxysService(BaseService):
             for attribute_json in attributes_json:
                 attribute_name = attribute_json['name']
                 if hasattr(instance, attribute_name):
-                    self.logger.debug(f'Setting attribute {attribute_name}.')
+                    #self.logger.debug(f'Setting attribute {attribute_name}.')
                     instance.__setattr__(attribute_name, attribute_json['value'])
                 else:
                     self.logger.debug(f'Python class doesn\'t have attribute {attribute_name}')
@@ -76,15 +76,9 @@ class InfraxysService(BaseService):
         attributes = []
         for attribute in packet.attributes:
             value = None
-            print(f'Processing attribute {attribute.name}')
             if hasattr(instance, attribute.name):
                 value = instance.__getattribute__(attribute.name)
-                print(f'Attribute value: {value}')
 
-            if not value and attribute.default_value:
-                value = attribute.default_value
-
-            print(f'Adding attribute {attribute.name} with value {value}.')
             attributes.append({
                 "id": attribute.id,
                 "name": attribute.name,
@@ -114,12 +108,12 @@ class InfraxysService(BaseService):
             "instance": instance_body
         }
 
-        print(json_body)
-        print('---------------')
+        #print(json_body)
+        #print('---------------')
         response = InfraxysRestClient.get_instance().execute_post(path='instances', json_body=json_body)
         json_object = json.loads(response.content.decode('utf-8'))
 
-        print(json_object)
+        #print(json_object)
         if "status" in json_object and json_object["status"] == "FAILED":
             message = 'Error creating instance: {}'.format(json_object["message"])
             raise Exception(message)
