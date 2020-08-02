@@ -8,6 +8,7 @@ from infraxys.model.packet import Packet
 from .packet_service import PacketService
 from infraxys.services.base_service import BaseService
 from ..json.instance_reference import InstanceReference
+from infraxys.communicator import Communicator
 
 
 class InfraxysService(BaseService):
@@ -120,3 +121,31 @@ class InfraxysService(BaseService):
 
         return response
 
+    @staticmethod
+    def add_action_error(self, code, message):
+        json = {
+            "requestType": "ADD_ACTION_ERROR",
+            "code": code,
+            "message": message
+        }
+        Communicator.get_instance().send_asynchronous(json=json)
+
+    @staticmethod
+    def add_action_log_entry(self, message, level='INFO'):
+        json = {
+            "requestType": "ADD_ACTION_LOG",
+            "level": level,
+            "message": message
+        }
+        Communicator.get_instance().send_asynchronous(json=json)
+
+    @staticmethod
+    def set_rest_response(self, code, message):
+        json = {
+            "requestType": "SET_REST_RESPONSE",
+            "actionResponse": {
+                "code": code,
+                "message": message
+            }
+        }
+        Communicator.get_instance().send_asynchronous(json=json)

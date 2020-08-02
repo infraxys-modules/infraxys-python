@@ -9,6 +9,15 @@ class BaseException(Exception):
         else:
             return "BaseException"
 
+class HandledException(Exception):
+
+    def __init__(self, exception_number, label):
+        self.exception_number = exception_number
+        self.label = label
+
+    def __str__(self):
+        return f'HandledException: {self.exception_number} - {self.label}'
+
 class UnauthorizedException(BaseException):
 
     def __str__(self):

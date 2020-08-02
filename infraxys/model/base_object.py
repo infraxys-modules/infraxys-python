@@ -143,29 +143,3 @@ class BaseObject(object):
         self.logger.debug("Creating new.")
         self.load_instance_form_response(server_response)
         self.ensure_instance(compile_instance=True)
-
-    def add_action_error(self, code, message):
-        json = {
-            "requestType": "ADD_ACTION_ERROR",
-            "code": code,
-            "message": message
-        }
-        Communicator.get_instance().send_asynchronous(json=json)
-
-    def add_action_log_entry(self, message, level='INFO'):
-        json = {
-            "requestType": "ADD_ACTION_LOG",
-            "level": level,
-            "message": message
-        }
-        Communicator.get_instance().send_asynchronous(json=json)
-
-    def set_rest_response(self, code, message):
-        json = {
-            "requestType": "SET_REST_RESPONSE",
-            "actionResponse": {
-                "code": code,
-                "message": message
-            }
-        }
-        Communicator.get_instance().send_asynchronous(json=json)
