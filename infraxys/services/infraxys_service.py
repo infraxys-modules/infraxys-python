@@ -122,7 +122,7 @@ class InfraxysService(BaseService):
         return response
 
     @staticmethod
-    def add_action_error(self, code, message):
+    def add_action_error(code, message):
         json = {
             "requestType": "ADD_ACTION_ERROR",
             "code": code,
@@ -131,7 +131,7 @@ class InfraxysService(BaseService):
         Communicator.get_instance().send_asynchronous(json=json)
 
     @staticmethod
-    def add_action_log_entry(self, message, level='INFO'):
+    def add_action_log_entry(message, level='INFO'):
         json = {
             "requestType": "ADD_ACTION_LOG",
             "level": level,
@@ -140,7 +140,7 @@ class InfraxysService(BaseService):
         Communicator.get_instance().send_asynchronous(json=json)
 
     @staticmethod
-    def set_rest_response(self, code, message):
+    def set_rest_response(code, message):
         json = {
             "requestType": "SET_REST_RESPONSE",
             "actionResponse": {
