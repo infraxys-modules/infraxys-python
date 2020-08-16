@@ -174,7 +174,6 @@ class InfraxysRestClient(object):
         response = self.execute_request(request_method='POST', url=url, json_body=json_body)
         json_object = json.loads(response.content.decode('utf-8'))
 
-        print(json_object)
         if "status" in json_object and json_object["status"] == "FAILED":
             message = 'Error creating instance: {}'.format(json_object["message"])
             raise Exception(message)
@@ -192,10 +191,10 @@ class InfraxysRestClient(object):
     def execute_request(self, request_method, url, headers: object = {}, json_body=None):
         headers.update({
             'Content-Type': 'application/json',
-            'Authorization': 'token {}'.format(self.api_token)
+            'Authorization': f'token {self.api_token}'
         })
 
-        # print("Executing {} to REST endpoint: {}".format(request_method, url))
+        self.logger.info("Executing {} to REST endpoint: {}".format(request_method, url))
         response = requests.request(request_method, url, headers=headers, verify=False, json=json_body)
 
         if response.status_code == 200:

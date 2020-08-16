@@ -16,6 +16,7 @@ class Packet(object):
         self.auto_generate = False
         self.info_html = None
         self.attributes = []
+        self.attributes_by_lower_name = {}
 
         # generate unique module branch path to the repo of this packet
         parts = packet_json_path.split("/")
@@ -38,4 +39,10 @@ class Packet(object):
         self.info_html = packet_json['infoHtml'] if type in packet_json else ''
 
         for attribute_json in packet_json['attributes']:
-            self.attributes.append(Attribute.load(attribute_json))
+            attribute = Attribute.load(attribute_json)
+            self.attributes.append(attribute)
+            self.attributes_by_lower_name[attribute.name.lower()] = attribute
+
+    def get_default_value(self, attribute_name):
+        if attribute_name.lower() in self.attributes_by_lower_name:
+            return self.attributes_by_lower_name[attribute_name.lower()]

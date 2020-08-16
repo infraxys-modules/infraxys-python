@@ -6,9 +6,10 @@ from infraxys.logger import Logger
 
 class BaseObject(object):
 
-    def __init__(self, instance_reference=None, parent_instance_reference=None):
+    def __init__(self, instance_reference=None, parent_instance_reference=None, parent_instance=None):
         self.instance_reference = instance_reference
         self.parent_instance_reference = parent_instance_reference
+        self.parent_instance = parent_instance
         self._packet = None
         self.logger = Logger.get_logger(self.__class__.__name__)
 
