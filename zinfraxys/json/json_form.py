@@ -145,7 +145,7 @@ class JsonForm(object):
             into[real_id] = fields[field_name]
 
     def set_data_part(self, element_id, json_data_part):
-        Communicator.get_instance().set_data_part(element_id=element_id, json_data_part=json_data_part)
+        Communicator.get_instance().set_data_part(key=key, data_part_json=json_data_part)
 
     def set_status(self, message):
         Communicator.set_status(message)
